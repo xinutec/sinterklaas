@@ -1,0 +1,184 @@
+body {
+    font-family: 'Lora', serif;
+    background-color: #a61c1c;
+    background-image: radial-gradient(circle, #b72c2c 10%, transparent 10%), radial-gradient(circle, #b72c2c 10%, transparent 10%);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    padding: 20px;
+    text-align: center;
+    color: #333;
+}
+.container {
+    z-index: 1;
+    max-width: 600px;
+    margin: 40px auto;
+    background: #fff8e1; /* Parchment color */
+    padding: 40px;
+    border: 8px double #d4af37; /* Gold border */
+    border-radius: 4px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    position: relative;
+}
+.container::before {
+    content: "★";
+    font-size: 40px;
+    color: #d4af37;
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #a61c1c;
+    border-radius: 50%;
+    padding: 0 10px;
+    border: 2px solid #d4af37;
+}
+h1 {
+    font-family: 'Mountains of Christmas', cursive;
+    color: #8b0000;
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+p { font-size: 1.1em; color: #555; }
+
+input, textarea {
+    box-sizing: border-box;
+    padding: 12px;
+    font-size: 18px;
+    width: 70%;
+    margin: 20px 0;
+    text-align: center;
+    border: 2px solid #d4af37;
+    border-radius: 4px;
+    background: #fff;
+    font-family: 'Courier New', monospace;
+}
+input:focus, textarea:focus { outline: none; border-color: #8b0000; }
+
+button {
+    padding: 12px 30px;
+    font-size: 18px;
+    background: #8b0000;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-family: 'Mountains of Christmas', cursive;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+button:hover { background: #a00000; transform: scale(1.05); }
+
+.result {
+    display: none;
+    margin-top: 30px;
+    border-top: 2px dashed #d4af37;
+    padding-top: 20px;
+    animation: fadeIn 1s ease-in-out;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+h2 { color: #8b0000; font-size: 1.8em; margin-bottom: 20px; }
+.target-name { color: #d62828; font-weight: bold; font-size: 1.2em; text-decoration: underline decoration-wavy #d4af37; }
+
+.wishlist-container {
+    text-align: left;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+ul { list-style-type: none; padding: 0; }
+li {
+    padding: 8px 0;
+    padding-left: 30px;
+    position: relative;
+    font-size: 1.1em;
+    line-height: 1.5;
+    border-bottom: 1px solid #f0f0f0;
+}
+li:last-child { border-bottom: none; }
+li::before {
+    content: "🎁";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    font-size: 1.2em;
+}
+
+/* Countdown Timer */
+#countdown {
+    position: relative;
+    z-index: 1;
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 1.5em;
+    color: #d4af37;
+    background: rgba(139, 0, 0, 0.9);
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: inline-block;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    border: 2px solid #d4af37;
+}
+
+/* Falling Pepernoten */
+.falling-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    /* Behind the card: the sweets fall past the page, never over a form. */
+    z-index: 0;
+}
+.falling-item {
+    position: absolute;
+    top: -50px;
+    font-size: 24px;
+    animation: fall linear forwards;
+}
+@keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); }
+}
+
+/* Forms */
+form { margin: 0; }
+label { display: block; text-align: left; font-weight: bold; color: #8b0000; margin-top: 16px; }
+textarea {
+    width: 100%;
+    min-height: 220px;
+    margin: 8px 0 16px;
+    text-align: left;
+    font-family: 'Lora', serif;
+    font-size: 16px;
+    line-height: 1.5;
+    resize: vertical;
+}
+label + input { width: 100%; margin: 8px 0 0; text-align: left; font-family: 'Lora', serif; }
+.hint { font-size: 0.9em; color: #777; text-align: left; margin: 4px 0 0; }
+.notice { background: #fff; border: 2px solid #d4af37; border-radius: 8px; padding: 12px; color: #333; }
+.error { border-color: #8b0000; }
+section { margin-top: 32px; }
+h2.section { font-family: 'Mountains of Christmas', cursive; font-size: 1.8em; margin: 0 0 8px; }
+.empty { color: #777; font-style: italic; }
+.actions { margin-top: 32px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+button.quiet { background: #fff; color: #8b0000; border: 2px solid #8b0000; box-shadow: none; }
+a { color: #8b0000; }
+
+/* The Sint's page */
+table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 12px; }
+th, td { padding: 8px 4px; border-bottom: 1px solid #e0d6b0; vertical-align: top; }
+td form { display: inline; }
+td:first-child { width: 55%; }
+.email { overflow-wrap: anywhere; }
+.hint.center { text-align: center; }
+td button { padding: 6px 14px; font-size: 15px; }
+@media (max-width: 480px) {
+    body { padding: 10px; }
+    .container { padding: 24px 16px; margin: 30px auto; }
+    h1 { font-size: 2.4em; }
+}

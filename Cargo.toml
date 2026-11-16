@@ -1,0 +1,52 @@
+[package]
+name = "sinterklaas"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+axum = "0.8"
+axum-extra = { version = "0.12", features = ["cookie", "form"] }
+tower = "0.5"
+tower-http = { version = "0.7", features = ["fs", "set-header", "trace"] }
+sqlx = { version = "0.9", default-features = false, features = [
+    "runtime-tokio",
+    "tls-rustls-ring",
+    "mysql",
+    "chrono",
+    "derive",
+    "macros",
+    "migrate",
+] }
+# The invite and sign-in links go out by SMTP submission to the fleet's Mailu.
+lettre = { version = "0.11", default-features = false, features = [
+    "builder",
+    "hostname",
+    "smtp-transport",
+    "tokio1",
+    "tokio1-rustls",
+    "ring",
+    "webpki-roots",
+] }
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.11"
+hex = "0.4"
+rand = "0.10"
+time = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+
+# The fleet's `[lints]` baseline (dev-lint docs/standards.md §7).
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+dbg_macro = "deny"
+todo = "deny"
+unimplemented = "deny"
