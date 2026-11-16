@@ -34,7 +34,7 @@ Rust (axum) rendering plain HTML forms, MariaDB, no frontend build. Pushed as
 | `DATABASE_URL` | `mysql://user:pw@host/sinterklaas` |
 | `PUBLIC_URL` | `https://sinterklaas.xinutec.org`, used in the links and the origin check |
 | `ADMIN_EMAIL`, `ADMIN_NAME` | the Sint |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | submission with STARTTLS |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | submission over implicit TLS (465) |
 | `MAIL_TO_LOG=1` | development only: links go to the log instead of SMTP |
 | `BIND_ADDR`, `STATIC_DIR` | default `0.0.0.0:8080`, `static` |
 

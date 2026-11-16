@@ -70,7 +70,7 @@ pub async fn send(
                 .subject(subject)
                 .header(ContentType::TEXT_PLAIN)
                 .body(body)?;
-            let transport = AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(host)?
+            let transport = AsyncSmtpTransport::<Tokio1Executor>::relay(host)?
                 .port(*port)
                 .credentials(Credentials::new(user.clone(), password.clone()))
                 .build();

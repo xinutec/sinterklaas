@@ -21,7 +21,8 @@ pub struct Config {
 /// How a sign-in link reaches its person.
 #[derive(Clone, Debug)]
 pub enum Mail {
-    /// SMTP submission with STARTTLS, as the fleet's Mailu takes it.
+    /// SMTP submission over implicit TLS (port 465): the fleet's Mailu
+    /// exposes no STARTTLS submission port.
     Smtp {
         host: String,
         port: u16,
