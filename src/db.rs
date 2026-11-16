@@ -49,7 +49,7 @@ pub fn normalise_email(email: &str) -> String {
 }
 
 /// The Sint, made admin on every start so the first invite needs no database
-/// edit. An existing row keeps the name its owner chose.
+/// edit. The Sint keeps the book: no wish list, not in the draw.
 pub async fn ensure_admin(pool: &MySqlPool, email: &str, name: &str) -> Result<()> {
     let at = now();
     sqlx::query(
@@ -79,10 +79,13 @@ pub async fn person_by_email(pool: &MySqlPool, email: &str) -> Result<Option<Per
         .await?)
 }
 
-pub async fn people(pool: &MySqlPool) -> Result<Vec<Person>> {
-    Ok(sqlx::query_as(select_person!("ORDER BY name, id"))
-        .fetch_all(pool)
-        .await?)
+/// Everyone taking part: the Sint keeps the book and is not in the draw.
+pub async fn participants(pool: &MySqlPool) -> Result<Vec<Person>> {
+    Ok(
+        sqlx::query_as(select_person!("WHERE is_admin = FALSE ORDER BY name, id"))
+            .fetch_all(pool)
+            .await?,
+    )
 }
 
 /// `false` when the address is already invited.
@@ -248,7 +251,7 @@ pub async fn drawn(pool: &MySqlPool) -> Result<bool> {
     Ok(n > 0)
 }
 
-/// Records the draw over everyone, in one transaction. Refused when one has
+/// Records the draw over every participant, in one transaction. Refused when one has
 /// already been made: a second draw would change who buys for whom after
 /// people have started shopping.
 pub async fn make_draw(pool: &MySqlPool) -> Result<usize> {
@@ -259,9 +262,10 @@ pub async fn make_draw(pool: &MySqlPool) -> Result<usize> {
     if n > 0 {
         bail!("the draw has already been made");
     }
-    let ids: Vec<(u64,)> = sqlx::query_as("SELECT id FROM person ORDER BY id FOR UPDATE")
-        .fetch_all(&mut *tx)
-        .await?;
+    let ids: Vec<(u64,)> =
+        sqlx::query_as("SELECT id FROM person WHERE is_admin = FALSE ORDER BY id FOR UPDATE")
+            .fetch_all(&mut *tx)
+            .await?;
     let Some(to) = crate::draw::derangement(ids.len(), &mut rand::rng()) else {
         bail!("a draw needs at least two people");
     };

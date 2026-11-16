@@ -187,10 +187,16 @@ async fn invite_sign_in_wish_and_draw() {
         .expect("Anna");
     assert_eq!(saved.wishlist, "- sokken\n- <b>boek</b>");
 
-    // The draw: four people, nobody themselves, everyone once; then refused again.
+    // The Sint keeps the book: their own page is the book, with no wish list.
+    let (status, _, _) = send(&app, get("/", Some(&sint))).await;
+    assert_eq!(status, StatusCode::SEE_OTHER);
+
+    // The draw: the three participants, nobody themselves, everyone once, the
+    // Sint never; then refused again.
     let (_, _, page) = send(&app, post("/admin/draw", Some(&sint), "")).await;
-    assert!(page.contains("getrokken voor 4"), "{page}");
-    let people = db::people(&pool).await.expect("people");
+    assert!(page.contains("getrokken voor 3"), "{page}");
+    let people = db::participants(&pool).await.expect("people");
+    assert_eq!(people.len(), 3, "the Sint is not a participant");
     let mut received = Vec::new();
     for p in &people {
         let r = db::receiver_of(&pool, p.id)
@@ -200,6 +206,18 @@ async fn invite_sign_in_wish_and_draw() {
         assert_ne!(r.id, p.id, "{} drew themselves", p.name);
         received.push(r.id);
     }
+    let the_sint = db::person_by_email(&pool, "sint@example.org")
+        .await
+        .expect("read")
+        .expect("the Sint");
+    assert!(!received.contains(&the_sint.id), "the Sint was drawn");
+    assert!(
+        db::receiver_of(&pool, the_sint.id)
+            .await
+            .expect("read")
+            .is_none(),
+        "the Sint drew"
+    );
     received.sort_unstable();
     received.dedup();
     assert_eq!(received.len(), people.len(), "someone was drawn twice");

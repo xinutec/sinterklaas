@@ -123,6 +123,9 @@ async fn home(State(state): State<AppState>, jar: CookieJar, Query(q): Query<Hom
     let Some(me) = signed_in(&state, &jar).await? else {
         return Ok(Html(html::sign_in(None)).into_response());
     };
+    if me.is_admin {
+        return Ok(Redirect::to("/admin").into_response());
+    }
     let receiver = db::receiver_of(&state.pool, me.id).await?;
     Ok(Html(html::home(&me, receiver.as_ref(), q.saved.is_some())).into_response())
 }
@@ -211,7 +214,7 @@ async fn save_wishes(
     jar: CookieJar,
     Form(form): Form<WishesForm>,
 ) -> Page {
-    let Some(me) = signed_in(&state, &jar).await? else {
+    let Some(me) = signed_in(&state, &jar).await?.filter(|p| !p.is_admin) else {
         return Ok(Redirect::to("/").into_response());
     };
     let name = form.name.trim();
@@ -249,7 +252,7 @@ async fn the_sint(state: &AppState, jar: &CookieJar) -> Result<Option<Person>, F
 }
 
 async fn admin_page(state: &AppState, notice: Option<&str>) -> Page {
-    let people = db::people(&state.pool).await?;
+    let people = db::participants(&state.pool).await?;
     let drawn = db::drawn(&state.pool).await?;
     Ok(Html(html::admin(&people, drawn, notice)).into_response())
 }

@@ -143,11 +143,6 @@ pub fn home(me: &Person, receiver: Option<&Person>, saved: bool) -> String {
             )
         }
     };
-    let admin = if me.is_admin {
-        r#"<form method="get" action="/admin"><button type="submit" class="quiet">Het Grote Boek</button></form>"#
-    } else {
-        ""
-    };
     page(
         "Sinterklaas Surprise",
         &format!(
@@ -169,7 +164,6 @@ pub fn home(me: &Person, receiver: Option<&Person>, saved: bool) -> String {
 </form>
 </section>
 <div class="actions">
-{admin}
 <form method="post" action="/logout"><button type="submit" class="quiet">Uitloggen</button></form>
 </div>"#,
             name = esc(&me.name),
@@ -185,9 +179,7 @@ pub fn admin(people: &[Person], drawn: bool, notice: Option<&str>) -> String {
     let rows: String = people
         .iter()
         .map(|p| {
-            let invited = if p.is_admin {
-                String::from("de Sint")
-            } else if p.invited_at.is_some() {
+            let invited = if p.invited_at.is_some() {
                 format!(
                     r#"uitgenodigd <form method="post" action="/admin/invite/{id}"><button type="submit" class="quiet">opnieuw</button></form>"#,
                     id = p.id
@@ -198,7 +190,7 @@ pub fn admin(people: &[Person], drawn: bool, notice: Option<&str>) -> String {
                     id = p.id
                 )
             };
-            let remove = if drawn || p.is_admin {
+            let remove = if drawn {
                 String::new()
             } else {
                 format!(
@@ -215,7 +207,7 @@ pub fn admin(people: &[Person], drawn: bool, notice: Option<&str>) -> String {
         })
         .collect();
     let draw = if drawn {
-        r#"<p>De lootjes zijn getrokken. Iedereen ziet alleen zijn eigen lootje, ook de Sint.</p>
+        r#"<p>De lootjes zijn getrokken. Iedereen ziet alleen zijn eigen lootje; de Sint ziet er geen.</p>
 <form method="post" action="/admin/reset-draw">
 <label><input type="checkbox" name="confirm" value="yes" required style="width:auto;margin:0 8px 0 0">Ja, ik wil de loting ongedaan maken</label>
 <button type="submit" class="quiet">Loting ongedaan maken</button>
@@ -253,7 +245,7 @@ pub fn admin(people: &[Person], drawn: bool, notice: Option<&str>) -> String {
 <h2 class="section">De loting</h2>
 {draw}
 </section>
-<div class="actions"><a href="/">Terug naar mijn pagina</a></div>"#
+<div class="actions"><form method="post" action="/logout"><button type="submit" class="quiet">Uitloggen</button></form></div>"#
         ),
     )
 }
