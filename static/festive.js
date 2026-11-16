@@ -6,9 +6,9 @@ function updateCountdown() {
     if (!el) return;
     const now = new Date();
     const year = now.getFullYear();
-    let target = new Date(year, 11, 6, 18, 0, 0); // 6 December, 18:00
+    let target = new Date(year, 11, 5, 18, 0, 0); // 5 December, 18:00
     if (now > target) {
-        if (now.getDate() === 6 && now.getMonth() === 11) {
+        if (now.getDate() === 5 && now.getMonth() === 11) {
             document.getElementById('countdown').textContent = '🎁 Fijne Pakjesavond! 🎁';
             return;
         }
