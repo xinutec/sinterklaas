@@ -104,10 +104,16 @@ async fn invite_sign_in_wish_and_draw() {
         .expect("a request");
     assert_eq!(send(&app, foreign).await.0, StatusCode::FORBIDDEN);
 
-    // A stranger and an invited person get the same answer.
+    // An address not on the list is told so, and keeps what it typed; an
+    // invited one is sent to its mailbox.
     let (_, _, stranger) = send(&app, post("/login", None, "email=nobody%40example.org")).await;
+    assert!(stranger.contains("staat niet op de lijst"), "{stranger}");
+    assert!(
+        stranger.contains(r#"value="nobody@example.org""#),
+        "{stranger}"
+    );
     let (_, _, invited) = send(&app, post("/login", None, "email=SINT%40example.org")).await;
-    assert_eq!(stranger, invited);
+    assert!(invited.contains("Er ligt nu een inloglink"), "{invited}");
 
     // The Sint adds people; only the Sint can.
     let sint = sign_in(&app, &pool, "sint@example.org").await;

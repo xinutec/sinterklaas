@@ -70,7 +70,8 @@ pub fn wishes(text: &str) -> String {
     out
 }
 
-pub fn sign_in(notice: Option<&str>) -> String {
+/// The sign-in form; `email` is put back in the field after a refusal.
+pub fn sign_in(notice: Option<&str>, email: &str) -> String {
     let notice = notice
         .map(|n| format!(r#"<p class="notice error">{}</p>"#, esc(n)))
         .unwrap_or_default();
@@ -80,11 +81,12 @@ pub fn sign_in(notice: Option<&str>) -> String {
             r#"<p>Welkom, Helper van de Sint!<br>Vul je e-mailadres in, dan stuurt de Sint je een inloglink.</p>
 {notice}
 <form method="post" action="/login">
-<input type="email" name="email" placeholder="jij@voorbeeld.nl" autocomplete="email" required>
+<input type="email" name="email" value="{email}" placeholder="jij@voorbeeld.nl" autocomplete="email" required>
 <br>
 <button type="submit">Stuur mij een link</button>
 </form>
-<p class="hint center">Alleen wie door de Sint is uitgenodigd kan inloggen.</p>"#
+<p class="hint center">Alleen wie door de Sint is uitgenodigd kan inloggen.</p>"#,
+            email = esc(email)
         ),
     )
 }
@@ -92,7 +94,7 @@ pub fn sign_in(notice: Option<&str>) -> String {
 pub fn check_mail() -> String {
     page(
         "Kijk in je mail",
-        r#"<p class="notice">Als dit adres is uitgenodigd, ligt er nu een inloglink in je mailbox. Hij werkt één keer en blijft een half uur geldig.</p>
+        r#"<p class="notice">Er ligt nu een inloglink in je mailbox. Hij werkt één keer en blijft een half uur geldig.</p>
 <p><a href="/">Terug</a></p>"#,
     )
 }

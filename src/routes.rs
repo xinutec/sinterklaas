@@ -121,7 +121,7 @@ struct HomeQuery {
 
 async fn home(State(state): State<AppState>, jar: CookieJar, Query(q): Query<HomeQuery>) -> Page {
     let Some(me) = signed_in(&state, &jar).await? else {
-        return Ok(Html(html::sign_in(None)).into_response());
+        return Ok(Html(html::sign_in(None, "")).into_response());
     };
     if me.is_admin {
         return Ok(Redirect::to("/admin").into_response());
@@ -138,15 +138,17 @@ struct LoginForm {
 /// The same answer whether or not the address is invited, so the form does not
 /// tell a stranger who is.
 async fn login(State(state): State<AppState>, Form(form): Form<LoginForm>) -> Page {
-    if let Some(person) = db::person_by_email(&state.pool, &form.email).await? {
-        send_link(
-            &state,
-            &person,
-            &mail::Kind::SignIn,
-            Duration::minutes(SIGN_IN_LINK_MINUTES),
-        )
-        .await?;
-    }
+    let Some(person) = db::person_by_email(&state.pool, &form.email).await? else {
+        let notice = "Dit adres staat niet op de lijst van de Sint. Kijk of het goed gespeld is, of vraag de Sint om een uitnodiging.";
+        return Ok(Html(html::sign_in(Some(notice), form.email.trim())).into_response());
+    };
+    send_link(
+        &state,
+        &person,
+        &mail::Kind::SignIn,
+        Duration::minutes(SIGN_IN_LINK_MINUTES),
+    )
+    .await?;
     Ok(Html(html::check_mail()).into_response())
 }
 
