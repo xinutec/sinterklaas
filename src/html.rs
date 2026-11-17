@@ -158,7 +158,6 @@ pub fn home(me: &Person, receiver: Option<&Person>, saved: bool) -> String {
 <label for="name">Je naam</label>
 <input id="name" name="name" value="{name}" maxlength="80" required>
 <label for="wishlist">Wat wens je je?</label>
-<p class="hint">Eén wens per regel. Begin een regel met een streepje (-) voor een lijstje.</p>
 <textarea id="wishlist" name="wishlist" maxlength="4000">{wishlist}</textarea>
 <button type="submit">Opslaan</button>
 </form>
