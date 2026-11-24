@@ -1,5 +1,5 @@
-//! The two emails the site sends: an invitation, and a sign-in link. Both carry
-//! a one-use link; neither carries anything about the draw.
+//! The emails the site sends: an invitation, a sign-in link, and word that the
+//! lots are drawn. Each carries a one-use link; none says who drew whom.
 
 use anyhow::{Context, Result};
 use lettre::message::{Mailbox, header::ContentType};
@@ -11,6 +11,7 @@ use crate::config::Mail;
 pub enum Kind {
     Invite,
     SignIn,
+    Drawn,
 }
 
 pub fn compose(kind: &Kind, name: &str, link: &str) -> (String, String) {
@@ -34,6 +35,17 @@ pub fn compose(kind: &Kind, name: &str, link: &str) -> (String, String) {
                  Met deze link log je in bij de Sinterklaas Surprise:\n\n{link}\n\n\
                  De link werkt één keer en blijft een half uur geldig. Heb je hem\n\
                  niet zelf aangevraagd, dan kun je deze e-mail negeren.\n\n\
+                 Groeten van de Sint\n"
+            ),
+        ),
+        Kind::Drawn => (
+            String::from("De lootjes zijn getrokken!"),
+            format!(
+                "Beste {name},\n\n\
+                 De Sint heeft de lootjes getrokken. Via deze link zie je voor wie\n\
+                 jij een surprise maakt, en wat er op diens verlanglijstje staat:\n\n{link}\n\n\
+                 De link werkt één keer en blijft zeven dagen geldig. Daarna vraag je\n\
+                 op de website gewoon een nieuwe aan met je e-mailadres.\n\n\
                  Groeten van de Sint\n"
             ),
         ),

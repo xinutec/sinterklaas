@@ -50,6 +50,7 @@ pub fn router(state: AppState) -> Router {
         .route("/admin/remove/{id}", post(remove_person))
         .route("/admin/draw", post(draw))
         .route("/admin/reset-draw", post(reset_draw))
+        .route("/admin/announce", post(announce))
         .route("/healthz", get(|| async { "ok" }))
         .nest_service("/static", static_dir)
         .layer(middleware::from_fn_with_state(state.clone(), same_origin))
@@ -135,8 +136,8 @@ struct LoginForm {
     email: String,
 }
 
-/// The same answer whether or not the address is invited, so the form does not
-/// tell a stranger who is.
+/// An address not on the list is told so: a mistyped one is noticed, at the
+/// price of telling a stranger who takes part.
 async fn login(State(state): State<AppState>, Form(form): Form<LoginForm>) -> Page {
     let Some(person) = db::person_by_email(&state.pool, &form.email).await? else {
         let notice = "Dit adres staat niet op de lijst van de Sint. Kijk of het goed gespeld is, of vraag de Sint om een uitnodiging.";
@@ -344,6 +345,38 @@ async fn draw(State(state): State<AppState>, jar: CookieJar) -> Page {
     let notice = match db::make_draw(&state.pool).await {
         Ok(n) => format!("De lootjes zijn getrokken voor {n} mensen."),
         Err(e) => format!("Niet getrokken: {e}"),
+    };
+    admin_page(&state, Some(&notice)).await
+}
+
+/// Mails every participant a fresh link once the lots are drawn. One that
+/// fails does not stop the rest; the notice names it.
+async fn announce(State(state): State<AppState>, jar: CookieJar) -> Page {
+    if the_sint(&state, &jar).await?.is_none() {
+        return Ok(Redirect::to("/").into_response());
+    }
+    if !db::drawn(&state.pool).await? {
+        return admin_page(&state, Some("Trek eerst de lootjes.")).await;
+    }
+    let (mut sent, mut not_sent) = (0, Vec::new());
+    for person in db::participants(&state.pool).await? {
+        let valid = Duration::days(INVITE_LINK_DAYS);
+        match send_link(&state, &person, &mail::Kind::Drawn, valid).await {
+            Ok(true) => sent += 1,
+            Ok(false) => not_sent.push(person.name),
+            Err(e) => {
+                tracing::warn!("announcing the draw to {}: {:#}", person.email, e.0);
+                not_sent.push(person.name);
+            }
+        }
+    }
+    let notice = if not_sent.is_empty() {
+        format!("Bericht verstuurd naar {sent} mensen.")
+    } else {
+        format!(
+            "Bericht verstuurd naar {sent} mensen; niet naar {} (probeer het over een minuut opnieuw).",
+            not_sent.join(", ")
+        )
     };
     admin_page(&state, Some(&notice)).await
 }

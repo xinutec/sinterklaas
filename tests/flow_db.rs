@@ -197,6 +197,9 @@ async fn invite_sign_in_wish_and_draw() {
     let (status, _, _) = send(&app, get("/", Some(&sint))).await;
     assert_eq!(status, StatusCode::SEE_OTHER);
 
+    let (_, _, page) = send(&app, post("/admin/announce", Some(&sint), "")).await;
+    assert!(page.contains("Trek eerst de lootjes"), "{page}");
+
     // The draw: the three participants, nobody themselves, everyone once, the
     // Sint never; then refused again.
     let (_, _, page) = send(&app, post("/admin/draw", Some(&sint), "")).await;
@@ -231,6 +234,25 @@ async fn invite_sign_in_wish_and_draw() {
         db::make_draw(&pool).await.is_err(),
         "a second draw was made"
     );
+
+    // Word of the draw reaches every participant as a fresh link; their earlier
+    // links go first, or the one-a-minute gap would hold these back.
+    for p in &people {
+        sqlx::query("DELETE FROM login_link WHERE person_id = ?")
+            .bind(p.id)
+            .execute(&pool)
+            .await
+            .expect("clear");
+    }
+    let (_, _, page) = send(&app, post("/admin/announce", Some(&sint), "")).await;
+    assert!(page.contains("Bericht verstuurd naar 3 mensen."), "{page}");
+    for p in &people {
+        assert!(
+            db::last_link_at(&pool, p.id).await.expect("read").is_some(),
+            "{} got no link",
+            p.name
+        );
+    }
 
     // Whoever drew Anna sees her list, escaped; Anna's own page never names
     // anyone but her own receiver.

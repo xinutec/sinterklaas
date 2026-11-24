@@ -209,6 +209,8 @@ pub fn admin(people: &[Person], drawn: bool, notice: Option<&str>) -> String {
         .collect();
     let draw = if drawn {
         r#"<p>De lootjes zijn getrokken. Iedereen ziet alleen zijn eigen lootje; de Sint ziet er geen.</p>
+<form method="post" action="/admin/announce"><button type="submit">Iedereen laten weten</button></form>
+<p class="hint">Stuurt iedereen een e-mail met een inloglink. Wie wie getrokken heeft, staat er niet in.</p>
 <form method="post" action="/admin/reset-draw">
 <label><input type="checkbox" name="confirm" value="yes" required style="width:auto;margin:0 8px 0 0">Ja, ik wil de loting ongedaan maken</label>
 <button type="submit" class="quiet">Loting ongedaan maken</button>
