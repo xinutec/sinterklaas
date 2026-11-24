@@ -15,8 +15,8 @@ Rust (axum) rendering plain HTML forms, MariaDB, no frontend build. Pushed as
   people on the Grote Boek page (`/admin`) and sends each an invitation. The
   Sint only keeps the book: no wish list, not in the draw. Whoever runs it takes
   part under their own address like everyone else. Asking
-  for a link with an address that is not invited answers the same as one that
-  is, so the form does not say who takes part.
+  for a link with an address that is not invited says so, so a mistyped
+  address is noticed; the form tells who takes part.
 - **Links.** A sign-in link is valid for 30 minutes, an invitation for 7 days,
   each once. Only their SHA-256 is stored. Opening a link shows a button;
   signing in takes the press, so a mail scanner following the link does not
@@ -24,7 +24,8 @@ Rust (axum) rendering plain HTML forms, MariaDB, no frontend build. Pushed as
 - **Sessions** are a random token in an HttpOnly cookie, 60 days, stored hashed.
 - **Every form post** must carry this site's `Origin` (or `Referer`).
 - **The draw** is a uniformly random derangement over the participants:
-  nobody draws themselves, everyone is drawn once. It is made once; the Sint
+  nobody draws themselves, everyone is drawn once. It sends no email: each
+  person sees whom they drew on their own page when they next sign in. It is made once; the Sint
   can undo it, and nobody can be added or removed while it stands.
 
 ## Configuration
